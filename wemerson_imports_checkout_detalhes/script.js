@@ -67,17 +67,7 @@ const products = [
     colors: ['Preto', 'Branco', 'Azul marinho'],
     details: ['Ajustável', 'Aba curva', 'Visual urbano', 'Acabamento premium']
   }
-  {
-    id: 7,
-    name: 'Boné ',
-    price: 49.90,
-    image: 'assets/bone-basico.png',
-    category: 'Acessório',
-    description: 'Boné streetwear ajustável para completar o look com estilo.',
-    sizes: ['Único ajustável'],
-    colors: ['Preto', 'Branco', 'Azul marinho'],
-    details: ['Ajustável', 'Aba curva', 'Visual urbano', 'Acabamento premium']
-  }
+  
 ];
 
 let cart = [];
