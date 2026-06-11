@@ -58,7 +58,7 @@ const products = [
   },
   {
     id: 6,
-    name: 'Boné Streetwear',
+    name: 'Boné',
     price: 49.90,
     image: 'assets/bone-basico.png',
     category: 'Acessório',
