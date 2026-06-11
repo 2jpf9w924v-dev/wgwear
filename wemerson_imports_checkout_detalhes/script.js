@@ -66,17 +66,6 @@ const products = [
     sizes: ['Único ajustável'],
     colors: ['Preto', 'Branco', 'Azul marinho'],
     details: ['Ajustável', 'Aba curva', 'Visual urbano', 'Acabamento premium']
-  },
-  {
-    id: 7,
-    name: 'Cinto',
-    price: 49.90,
-    image: 'assets/bone-basico.png',
-    category: 'Acessório',
-    description: 'Cinto ajustável para completar o look com estilo.',
-    sizes: ['Único ajustável'],
-    colors: ['Preto', 'Branco', 'Azul marinho'],
-    details: ['Ajustável', 'Aba curva', 'Visual urbano', 'Acabamento premium']
   }
   
   
