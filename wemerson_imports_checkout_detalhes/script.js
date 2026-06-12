@@ -251,16 +251,39 @@ function enviarPedidoWhatsapp() {
     return;
   }
 
-  const nome = document.getElementById("nomeCliente").value;
-  const telefone = document.getElementById("telefoneCliente").value;
-  const cpf = document.getElementById("cpfCliente").value;
-  const cep = document.getElementById("cepCliente").value;
-  const endereco = document.getElementById("enderecoCliente").value;
-  const numero = document.getElementById("numeroCliente").value;
-  const complemento = document.getElementById("complementoCliente").value;
-  const bairro = document.getElementById("bairroCliente").value;
-  const cidade = document.getElementById("cidadeCliente").value;
-  const pagamento = document.getElementById("pagamentoCliente").value;
+  const camposObrigatorios = [
+    "nomeCliente",
+    "telefoneCliente",
+    "cpfCliente",
+    "cepCliente",
+    "enderecoCliente",
+    "numeroCliente",
+    "complementoCliente",
+    "bairroCliente",
+    "cidadeCliente",
+    "pagamentoCliente"
+  ];
+
+  for (const campo of camposObrigatorios) {
+    const elemento = document.getElementById(campo);
+
+    if (!elemento || !elemento.value.trim()) {
+      alert("Por favor, preencha todos os campos antes de finalizar o pedido.");
+      elemento.focus();
+      return;
+    }
+  }
+
+  const nome = document.getElementById("nomeCliente").value.trim();
+  const telefone = document.getElementById("telefoneCliente").value.trim();
+  const cpf = document.getElementById("cpfCliente").value.trim();
+  const cep = document.getElementById("cepCliente").value.trim();
+  const endereco = document.getElementById("enderecoCliente").value.trim();
+  const numero = document.getElementById("numeroCliente").value.trim();
+  const complemento = document.getElementById("complementoCliente").value.trim();
+  const bairro = document.getElementById("bairroCliente").value.trim();
+  const cidade = document.getElementById("cidadeCliente").value.trim();
+  const pagamento = document.getElementById("pagamentoCliente").value.trim();
 
   const itens = cart.map(i =>
     `• ${i.qty}x ${i.name}
@@ -282,7 +305,7 @@ function enviarPedidoWhatsapp() {
 
 Nome: ${nome}
 Telefone: ${telefone}
-CPF: ${cpf || "Não informado"}
+CPF: ${cpf}
 
 ━━━━━━━━━━━━━━━
 
@@ -290,7 +313,7 @@ CPF: ${cpf || "Não informado"}
 
 ${endereco}, ${numero}
 
-Complemento: ${complemento || "Não informado"}
+Complemento: ${complemento}
 
 Bairro: ${bairro}
 Cidade: ${cidade}

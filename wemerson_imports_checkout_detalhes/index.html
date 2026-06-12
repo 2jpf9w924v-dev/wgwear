@@ -183,114 +183,119 @@
       <div class="checkout-form">
 
         <input
-          type="text"
-          id="nomeCliente"
-          placeholder="Nome Completo"
-          required
-        >
+  type="text"
+  id="nomeCliente"
+  placeholder="Nome Completo"
+  required
+>
 
-        <input
-          type="tel"
-          id="telefoneCliente"
-          placeholder="WhatsApp"
-          required
-        >
+<input
+  type="tel"
+  id="telefoneCliente"
+  placeholder="WhatsApp"
+  required
+>
 
-        <input
-          type="text"
-          id="cpfCliente"
-          placeholder="CPF"
-        >
+<input
+  type="text"
+  id="cpfCliente"
+  placeholder="CPF"
+  required
+>
 
-        <input
-          type="text"
-          id="cepCliente"
-          placeholder="CEP"
-        >
+<input
+  type="text"
+  id="cepCliente"
+  placeholder="CEP"
+  required
+>
 
-        <input
-          type="text"
-          id="enderecoCliente"
-          placeholder="Rua / Avenida"
-        >
+<input
+  type="text"
+  id="enderecoCliente"
+  placeholder="Rua / Avenida"
+  required
+>
 
-        <input
-          type="text"
-          id="numeroCliente"
-          placeholder="Número"
-        >
+<input
+  type="text"
+  id="numeroCliente"
+  placeholder="Número"
+  required
+>
 
-        <input
-          type="text"
-          id="complementoCliente"
-          placeholder="Complemento"
-        >
+<input
+  type="text"
+  id="complementoCliente"
+  placeholder="Complemento"
+  required
+>
 
-        <input
-          type="text"
-          id="bairroCliente"
-          placeholder="Bairro"
-        >
+<input
+  type="text"
+  id="bairroCliente"
+  placeholder="Bairro"
+  required
+>
 
-        <input
-          type="text"
-          id="cidadeCliente"
-          placeholder="Cidade"
-        >
+<input
+  type="text"
+  id="cidadeCliente"
+  placeholder="Cidade"
+  required
+>
 
-        <label>
-          Forma de pagamento
-        </label>
+<select id="pagamentoCliente" required>
+  <option value="" selected disabled>
+    Forma de pagamento
+  </option>
 
-        <select id="pagamentoCliente">
+  <option value="PIX">
+    PIX
+  </option>
 
-          <option value="PIX">
-            PIX
-          </option>
+  <option value="Cartão de Crédito">
+    Cartão de Crédito
+  </option>
 
-          <option value="Cartão de Crédito">
-            Cartão de Crédito
-          </option>
+  <option value="Cartão de Débito">
+    Cartão de Débito
+  </option>
+</select>
 
-          <option value="Cartão de Débito">
-            Cartão de Débito
-          </option>
+<button
+  class="btn primary full"
+  onclick="enviarPedidoWhatsapp()"
+>
+  Finalizar Pedido
+</button>
 
-        </select>
+</div>
 
-        <button
-          class="btn primary full"
-          onclick="enviarPedidoWhatsapp()"
-        >
-          Finalizar Pedido
-        </button>
+</div>
 
-      </div>
+</div>
 
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <strong>W.G Wear</strong>
+      <p>
+        Estilo, qualidade e preço justo em um só lugar.
+      </p>
     </div>
 
+    <div>
+      <p>WhatsApp: (11) 99783-1644</p>
+      <p>Email: w.gwear.oficial@gmail.com</p>
+    </div>
   </div>
 
-  <footer>
-    <div class="container footer-grid">
-      <div>
-        <strong>W.G Wear</strong>
-        <p>
-          Estilo, qualidade e preço justo em um só lugar.
-        </p>
-      </div>
+  <p class="copy">
+    © 2026 W.G Wear. Todos os direitos reservados.
+  </p>
+</footer>
 
-      <div>
-        <p>WhatsApp: (11) 99783-1644</p>
-        <p>Email: w.gwear.oficial@gmail.com</p>
-      </div>
-    </div>
-
-    <p class="copy">
-      © 2026 W.G Wear. Todos os direitos reservados.
-    </p>
-  </footer>
-
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
