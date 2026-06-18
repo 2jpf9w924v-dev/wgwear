@@ -6,7 +6,78 @@
 </head>
 <body>
   <h1>Pagamento aprovado ✅</h1>
-  <p>Obrigado por comprar na W.G Wear.</p>
-  <a href="/">Voltar para a loja</a>
+  <p>Seu pagamento foi aprovado.</p>
+  <p>Agora vamos abrir o WhatsApp com os dados do pedido.</p>
+  <a id="abrirWhatsapp" href="#">Abrir WhatsApp</a>
+
+  <script>
+    const whatsappNumber = "5511997831644";
+
+    const pedido = JSON.parse(
+      localStorage.getItem("ultimoPedidoWGWear") || "{}"
+    );
+
+    const money = value => Number(value || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+
+    if (pedido && pedido.cliente && pedido.carrinho) {
+      const itens = pedido.carrinho.map(i =>
+`• ${i.qty}x ${i.name}
+  Cor: ${i.color}
+  Tamanho: ${i.size}
+  Valor: ${money(i.price)}`
+      ).join("\n\n");
+
+      const mensagem =
+`🔥 PEDIDO PAGO - W.G WEAR
+
+━━━━━━━━━━━━━━━
+
+👤 DADOS DO CLIENTE
+
+Nome: ${pedido.cliente.nome}
+Telefone: ${pedido.cliente.telefone}
+CPF: ${pedido.cliente.cpf || "Não informado"}
+
+━━━━━━━━━━━━━━━
+
+📦 ENTREGA
+
+${pedido.cliente.endereco}, ${pedido.cliente.numero}
+
+Complemento: ${pedido.cliente.complemento || "Não informado"}
+
+Bairro: ${pedido.cliente.bairro}
+Cidade: ${pedido.cliente.cidade}
+
+CEP: ${pedido.cliente.cep}
+
+━━━━━━━━━━━━━━━
+
+🛍 PRODUTOS
+
+${itens}
+
+━━━━━━━━━━━━━━━
+
+💰 TOTAL
+
+${money(pedido.total)}
+
+━━━━━━━━━━━━━━━
+
+✅ Status: Pagamento aprovado via Mercado Pago.`;
+
+      const linkWhatsapp = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensagem)}`;
+
+      document.getElementById("abrirWhatsapp").href = linkWhatsapp;
+
+      setTimeout(() => {
+        window.location.href = linkWhatsapp;
+      }, 1500);
+    }
+  </script>
 </body>
 </html>
