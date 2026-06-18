@@ -35,9 +35,9 @@ export default async function handler(req, res) {
         }
       },
       back_urls: {
-        success: "https://wgwear.vercel.app/sucesso.html",
-        failure: "https://wgwear.vercel.app/falha.html",
-        pending: "https://wgwear.vercel.app/pendente.html"
+        success: "https://wgwear.com.br/sucesso.html",
+        failure: "https://wgwear.com.br/falha.html",
+        pending: "https://wgwear.com.br/pendente.html"
       },
       auto_return: "approved",
       statement_descriptor: "WG WEAR"
