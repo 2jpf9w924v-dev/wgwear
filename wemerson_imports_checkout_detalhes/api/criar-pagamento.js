@@ -40,17 +40,26 @@ export default async function handler(req, res) {
         pending: "https://wgwear.com.br/pendente.html"
       },
       auto_return: "approved",
-      statement_descriptor: "WG WEAR"
+      statement_descriptor: "WG WEAR",
+      payment_methods: {
+        excluded_payment_methods: [],
+        excluded_payment_types: [],
+        installments: 12,
+        default_installments: 1
+      }
     };
 
-    const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(preference)
-    });
+    const response = await fetch(
+      "https://api.mercadopago.com/checkout/preferences",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(preference)
+      }
+    );
 
     const data = await response.json();
 
@@ -63,7 +72,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       linkPagamento: data.init_point,
-      sandbox: data.sandbox_init_point,
       id: data.id
     });
 
