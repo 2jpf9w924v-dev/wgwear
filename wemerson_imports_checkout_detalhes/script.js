@@ -389,3 +389,48 @@ function fecharCheckout(){
             "active"
         );
 }
+async function finalizarPedidoMercadoPago() {
+  if (cart.length === 0) {
+    alert("Adicione produtos ao carrinho.");
+    return;
+  }
+
+  const cliente = {
+    nome: document.getElementById("nomeCliente")?.value || "",
+    telefone: document.getElementById("telefoneCliente")?.value || "",
+    cpf: document.getElementById("cpfCliente")?.value || "",
+    cep: document.getElementById("cepCliente")?.value || "",
+    endereco: document.getElementById("enderecoCliente")?.value || "",
+    numero: document.getElementById("numeroCliente")?.value || "",
+    complemento: document.getElementById("complementoCliente")?.value || "",
+    bairro: document.getElementById("bairroCliente")?.value || "",
+    cidade: document.getElementById("cidadeCliente")?.value || ""
+  };
+
+  try {
+    const resposta = await fetch("/api/criar-pagamento", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        cliente,
+        carrinho: cart
+      })
+    });
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      console.error(dados);
+      alert("Erro ao gerar pagamento. Verifique a configuração do Mercado Pago.");
+      return;
+    }
+
+    window.location.href = dados.sandbox || dados.linkPagamento;
+
+  } catch (erro) {
+    console.error(erro);
+    alert("Erro ao conectar com o pagamento.");
+  }
+}
