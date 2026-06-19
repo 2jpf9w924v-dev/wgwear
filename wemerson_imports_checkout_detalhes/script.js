@@ -4,7 +4,7 @@ const products = [
   {
     id: 1,
     name: 'Camiseta Premium Oversized',
-    price: 79,90
+    price: 79.90,
     image: 'assets/Camiseta Primium Oversized Preta.png',
     category: 'Camiseta',
     description: 'Camiseta oversized com caimento moderno, tecido confortável e visual streetwear premium.',
