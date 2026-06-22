@@ -16,13 +16,22 @@ function valorCampo(item, nomes, padrao = '') {
 function normalizarPreco(valor) {
   if (typeof valor === 'number') return valor;
 
-  return Number(
-    String(valor || '0')
-      .replace('R$', '')
-      .replace(/\s/g, '')
-      .replace(/\./g, '')
-      .replace(',', '.')
-  );
+  let texto = String(valor || '0')
+    .replace('R$', '')
+    .replace(/\s/g, '')
+    .trim();
+
+  // Aceita corretamente:
+  // 100      => 100
+  // 100.00   => 100
+  // 100,00   => 100
+  // 1.000,00 => 1000
+  if (texto.includes(',')) {
+    texto = texto.replace(/\./g, '').replace(',', '.');
+  }
+
+  const numero = Number(texto);
+  return Number.isNaN(numero) ? 0 : numero;
 }
 
 function normalizarLista(valor) {
