@@ -82,3 +82,60 @@ export default async function handler(req, res) {
     });
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzBn-ncub2tdi7eZwfFffy3SKRf445Ez0H1K2abmTo6EsVwxY27BYqWqHMFCzhNt6qj2w/exec';
+
+let products = [];
+
+async function carregarProdutos() {
+  try {
+    const response = await fetch(GOOGLE_SHEETS_URL);
+    const data = await response.json();
+
+    products = data
+      .filter(item =>
+        String(item.active || '').trim().toUpperCase() === 'SIM'
+      )
+      .map(item => ({
+        id: Number(item.id),
+        name: item.name,
+        price: Number(item.price),
+        image: item.image,
+        category: item.category,
+        description: item.description,
+        sizes: String(item.sizes || '')
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean),
+        colors: String(item.colors || '')
+          .split(',')
+          .map(c => c.trim())
+          .filter(Boolean),
+        details: String(item.details || '')
+          .split(',')
+          .map(d => d.trim())
+          .filter(Boolean)
+      }));
+
+    renderProducts();
+
+  } catch (error) {
+    console.error('Erro ao carregar produtos:', error);
+
+    document.getElementById('products').innerHTML = `
+      <p style="color:red;text-align:center;">
+        Erro ao carregar produtos.
+      </p>
+    `;
+  }
+}

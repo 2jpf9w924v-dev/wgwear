@@ -4,35 +4,64 @@ const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzBn-ncub2tdi
 
 let products = [];
 
+function valorCampo(item, nomes, padrao = '') {
+  for (const nome of nomes) {
+    if (item && item[nome] !== undefined && item[nome] !== null && String(item[nome]).trim() !== '') {
+      return item[nome];
+    }
+  }
+  return padrao;
+}
+
+function normalizarPreco(valor) {
+  if (typeof valor === 'number') return valor;
+
+  return Number(
+    String(valor || '0')
+      .replace('R$', '')
+      .replace(/\s/g, '')
+      .replace(/\./g, '')
+      .replace(',', '.')
+  );
+}
+
+function normalizarLista(valor) {
+  return String(valor || '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+
 async function carregarProdutos() {
   try {
     const response = await fetch(GOOGLE_SHEETS_URL);
     const data = await response.json();
 
+    if (!Array.isArray(data)) {
+      throw new Error('A resposta do Google Sheets não retornou uma lista de produtos.');
+    }
+
     products = data
-      .filter(item =>
-        String(item.active || '').trim().toUpperCase() === 'SIM'
-      )
-      .map(item => ({
-        id: Number(item.id),
-        name: item.name,
-        price: Number(item.price),
-        image: item.image,
-        category: item.category,
-        description: item.description,
-        sizes: String(item.sizes || '')
-          .split(',')
-          .map(s => s.trim())
-          .filter(Boolean),
-        colors: String(item.colors || '')
-          .split(',')
-          .map(c => c.trim())
-          .filter(Boolean),
-        details: String(item.details || '')
-          .split(',')
-          .map(d => d.trim())
-          .filter(Boolean)
-      }));
+      .filter(item => {
+        const ativo = String(valorCampo(item, ['active', 'Active', 'ativo', 'Ativo', 'ativar', 'Ativar'], 'SIM'))
+          .trim()
+          .toUpperCase();
+
+        return ativo === 'SIM' || ativo === 'ATIVO' || ativo === 'TRUE' || ativo === '1';
+      })
+      .map((item, index) => ({
+        id: Number(valorCampo(item, ['id', 'ID'], index + 1)),
+        name: valorCampo(item, ['name', 'Name', 'nome', 'Nome'], 'Produto sem nome'),
+        price: normalizarPreco(valorCampo(item, ['price', 'Price', 'preco', 'Preço', 'valor', 'Valor'], 0)),
+        image: valorCampo(item, ['image', 'Image', 'imagem', 'Imagem'], 'assets/logo-bg.png'),
+        category: valorCampo(item, ['category', 'Category', 'categoria', 'Categoria'], 'Produto'),
+        description: valorCampo(item, ['description', 'Description', 'descricao', 'Descrição'], ''),
+        sizes: normalizarLista(valorCampo(item, ['sizes', 'Sizes', 'tamanhos', 'Tamanhos'], 'Único')),
+        colors: normalizarLista(valorCampo(item, ['colors', 'Colors', 'cores', 'Cores'], 'Única')),
+        details: normalizarLista(valorCampo(item, ['details', 'Details', 'detalhes', 'Detalhes'], ''))
+      }))
+      .filter(item => item.id && item.name && !Number.isNaN(item.price));
 
     renderProducts();
 
@@ -57,6 +86,13 @@ const money = value => Number(value || 0).toLocaleString('pt-BR', {
 
 function renderProducts() {
   const area = document.getElementById('products');
+
+  if (!area) return;
+
+  if (products.length === 0) {
+    area.innerHTML = '<p style="text-align:center;">Nenhum produto ativo encontrado.</p>';
+    return;
+  }
 
   area.innerHTML = products.map(p => `
     <article class="product">
@@ -192,8 +228,8 @@ function addToCart(id, size = '', color = '') {
   const product = products.find(p => p.id === id);
   if (!product) return;
 
-  const chosenSize = size || product.sizes[0];
-  const chosenColor = color || product.colors[0];
+  const chosenSize = size || product.sizes[0] || 'Único';
+  const chosenColor = color || product.colors[0] || 'Única';
 
   const itemKey = `${id}-${chosenSize}-${chosenColor}`;
   const item = cart.find(i => i.key === itemKey);
@@ -211,7 +247,7 @@ function addToCart(id, size = '', color = '') {
   }
 
   renderCart();
-  document.getElementById('cart').classList.add('open');
+  document.getElementById('cart')?.classList.add('open');
 }
 
 function removeFromCart(key) {
@@ -233,9 +269,12 @@ function changeQty(key, action) {
 }
 
 function renderCart() {
-  document.getElementById('cartCount').textContent = cart.reduce((a, i) => a + i.qty, 0);
-
+  const cartCount = document.getElementById('cartCount');
   const items = document.getElementById('cartItems');
+  const cartTotal = document.getElementById('cartTotal');
+
+  if (cartCount) cartCount.textContent = cart.reduce((a, i) => a + i.qty, 0);
+  if (!items) return;
 
   if (cart.length === 0) {
     items.innerHTML = '<p>Seu carrinho está vazio.</p>';
@@ -259,28 +298,35 @@ function renderCart() {
   }
 
   const total = cart.reduce((a, i) => a + (i.price * i.qty), 0);
-  document.getElementById('cartTotal').textContent = money(total);
+  if (cartTotal) cartTotal.textContent = money(total);
 }
 
 function abrirCheckout() {
+  const pagamentoCarrinho = document.getElementById('paymentMethod')?.value;
+  const pagamentoCheckout = document.getElementById('pagamentoCliente');
+
+  if (pagamentoCarrinho && pagamentoCheckout && !pagamentoCheckout.value) {
+    pagamentoCheckout.value = pagamentoCarrinho;
+  }
+
   if (cart.length === 0) {
     alert("Adicione produtos ao carrinho.");
     return;
   }
 
-  document.getElementById("checkoutModal").classList.add("active");
+  document.getElementById("checkoutModal")?.classList.add("active");
 }
 
 function fecharCheckout() {
-  document.getElementById("checkoutModal").classList.remove("active");
+  document.getElementById("checkoutModal")?.classList.remove("active");
 }
 
 function toggleCart() {
-  document.getElementById('cart').classList.toggle('open');
+  document.getElementById('cart')?.classList.toggle('open');
 }
 
 function toggleMenu() {
-  document.getElementById('menu').classList.toggle('open');
+  document.getElementById('menu')?.classList.toggle('open');
 }
 
 function validarCamposCheckout() {
@@ -292,8 +338,7 @@ function validarCamposCheckout() {
     "enderecoCliente",
     "numeroCliente",
     "bairroCliente",
-    "cidadeCliente",
-    "pagamentoCliente"
+    "cidadeCliente"
   ];
 
   for (const campo of camposObrigatorios) {
@@ -304,6 +349,14 @@ function validarCamposCheckout() {
       if (elemento) elemento.focus();
       return false;
     }
+  }
+
+  const pagamento = document.getElementById("pagamentoCliente") || document.getElementById("paymentMethod");
+
+  if (!pagamento || !pagamento.value.trim()) {
+    alert("Por favor, selecione a forma de pagamento.");
+    if (pagamento) pagamento.focus();
+    return false;
   }
 
   return true;
@@ -320,7 +373,7 @@ function obterDadosCliente() {
     complemento: document.getElementById("complementoCliente")?.value.trim() || "Não informado",
     bairro: document.getElementById("bairroCliente").value.trim(),
     cidade: document.getElementById("cidadeCliente").value.trim(),
-    pagamento: document.getElementById("pagamentoCliente").value.trim()
+    pagamento: (document.getElementById("pagamentoCliente") || document.getElementById("paymentMethod")).value.trim()
   };
 }
 
@@ -410,7 +463,7 @@ function checkoutWhatsApp() {
     return;
   }
 
-  const payment = document.getElementById('paymentMethod').value;
+  const payment = document.getElementById('paymentMethod')?.value || 'PIX';
   const lines = cart.map(i => `- ${i.qty}x ${i.name} | Tam: ${i.size} | Cor: ${i.color} | ${money(i.price)}`).join('%0A');
   const total = money(cart.reduce((a, i) => a + (i.price * i.qty), 0));
 
@@ -496,5 +549,7 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') closeProductModal();
 });
 
-carregarProdutos();
-renderCart();
+document.addEventListener('DOMContentLoaded', () => {
+  carregarProdutos();
+  renderCart();
+});
