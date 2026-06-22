@@ -1,73 +1,51 @@
 const whatsappNumber = '5511997831644';
 
-const products = [
-  {
-    id: 1,
-    name: 'Camiseta Premium Oversized',
-    price: 79.90,
-    image: 'assets/Camiseta Primium Oversized Preta.png',
-    category: 'Camiseta',
-    description: 'Camiseta oversized com caimento moderno, tecido confortável e visual streetwear premium.',
-    sizes: ['P', 'M', 'G', 'GG'],
-    colors: ['Preta', 'Branca', 'Bege'],
-    details: ['Algodão premium', 'Modelagem oversized', 'Gola reforçada', 'Ideal para looks casuais']
-  },
-  {
-    id: 2,
-    name: 'Camiseta Básica Algodão',
-    price: 59.90,
-    image: 'assets/camiseta-algodão.png',
-    category: 'Camiseta',
-    description: 'Camiseta básica versátil para o dia a dia, com toque macio e ótimo acabamento.',
-    sizes: ['P', 'M', 'G', 'GG'],
-    colors: ['Preta', 'Branca', 'Cinza'],
-    details: ['Algodão confortável', 'Corte tradicional', 'Fácil de combinar', 'Peça essencial']
-  },
-  {
-    id: 3,
-    name: 'Moletom Premium',
-    price: 149.90,
-    image: 'assets/moletom-premium.png',
-    category: 'Moletom',
-    description: 'Moletom premium para dias frios, com visual elegante e acabamento reforçado.',
-    sizes: ['P', 'M', 'G', 'GG'],
-    colors: ['Preto', 'Cinza', 'Marrom'],
-    details: ['Tecido encorpado', 'Capuz confortável', 'Punhos reforçados', 'Estilo urbano']
-  },
-  {
-    id: 4,
-    name: 'Bermuda Casual',
-    price: 89.90,
-    image: 'assets/bermuda-casual.png',
-    category: 'Bermuda',
-    description: 'Bermuda casual confortável, ideal para lazer, passeio e combinações modernas.',
-    sizes: ['38', '40', '42', '44', '46'],
-    colors: ['Preta', 'Bege', 'Cinza'],
-    details: ['Confortável', 'Bolsos funcionais', 'Caimento casual', 'Boa durabilidade']
-  },
-  {
-    id: 5,
-    name: 'Calça Cargo Street',
-    price: 129.90,
-    image: 'assets/calca-cargo.png',
-    category: 'Calça',
-    description: 'Calça cargo com pegada street, bolsos laterais e presença visual marcante.',
-    sizes: ['38', '40', '42', '44', '46'],
-    colors: ['Preta', 'Verde militar', 'Caqui'],
-    details: ['Bolsos cargo', 'Modelagem street', 'Tecido resistente', 'Visual moderno']
-  },
-  {
-    id: 6,
-    name: 'Boné',
-    price: 49.90,
-    image: 'assets/bone-basico.png',
-    category: 'Acessório',
-    description: 'Boné streetwear ajustável para completar o look com estilo.',
-    sizes: ['Único ajustável'],
-    colors: ['Preto', 'Branco', 'Azul marinho'],
-    details: ['Ajustável', 'Aba curva', 'Visual urbano', 'Acabamento premium']
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzBn-ncub2tdi7eZwfFffy3SKRf445Ez0H1K2abmTo6EsVwxY27BYqWqHMFCzhNt6qj2w/exec';
+
+let products = [];
+
+async function carregarProdutos() {
+  try {
+    const response = await fetch(GOOGLE_SHEETS_URL);
+    const data = await response.json();
+
+    products = data
+      .filter(item =>
+        String(item.active || '').trim().toUpperCase() === 'SIM'
+      )
+      .map(item => ({
+        id: Number(item.id),
+        name: item.name,
+        price: Number(item.price),
+        image: item.image,
+        category: item.category,
+        description: item.description,
+        sizes: String(item.sizes || '')
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean),
+        colors: String(item.colors || '')
+          .split(',')
+          .map(c => c.trim())
+          .filter(Boolean),
+        details: String(item.details || '')
+          .split(',')
+          .map(d => d.trim())
+          .filter(Boolean)
+      }));
+
+    renderProducts();
+
+  } catch (error) {
+    console.error('Erro ao carregar produtos:', error);
+
+    document.getElementById('products').innerHTML = `
+      <p style="color:red;text-align:center;">
+        Erro ao carregar produtos.
+      </p>
+    `;
   }
-];
+}
 
 let cart = [];
 let pagamentoEmProcessamento = false;
@@ -518,5 +496,5 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') closeProductModal();
 });
 
-renderProducts();
+carregarProdutos();
 renderCart();
