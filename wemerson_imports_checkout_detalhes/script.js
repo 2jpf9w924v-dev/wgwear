@@ -21,11 +21,6 @@ function normalizarPreco(valor) {
     .replace(/\s/g, '')
     .trim();
 
-  // Aceita corretamente:
-  // 100      => 100
-  // 100.00   => 100
-  // 100,00   => 100
-  // 1.000,00 => 1000
   if (texto.includes(',')) {
     texto = texto.replace(/\./g, '').replace(',', '.');
   }
@@ -40,7 +35,6 @@ function normalizarLista(valor) {
     .map(item => item.trim())
     .filter(Boolean);
 }
-
 
 async function carregarProdutos() {
   try {
@@ -59,17 +53,36 @@ async function carregarProdutos() {
 
         return ativo === 'SIM' || ativo === 'ATIVO' || ativo === 'TRUE' || ativo === '1';
       })
-      .map((item, index) => ({
-        id: Number(valorCampo(item, ['id', 'ID'], index + 1)),
-        name: valorCampo(item, ['name', 'Name', 'nome', 'Nome'], 'Produto sem nome'),
-        price: normalizarPreco(valorCampo(item, ['price', 'Price', 'preco', 'Preço', 'valor', 'Valor'], 0)),
-        image: valorCampo(item, ['image', 'Image', 'imagem', 'Imagem'], 'assets/logo-bg.png'),
-        category: valorCampo(item, ['category', 'Category', 'categoria', 'Categoria'], 'Produto'),
-        description: valorCampo(item, ['description', 'Description', 'descricao', 'Descrição'], ''),
-        sizes: normalizarLista(valorCampo(item, ['sizes', 'Sizes', 'tamanhos', 'Tamanhos'], 'Único')),
-        colors: normalizarLista(valorCampo(item, ['colors', 'Colors', 'cores', 'Cores'], 'Única')),
-        details: normalizarLista(valorCampo(item, ['details', 'Details', 'detalhes', 'Detalhes'], ''))
-      }))
+      .map((item, index) => {
+        const colorImages = Object.keys(item)
+          .filter(key => key.toLowerCase().startsWith('image_'))
+          .reduce((obj, key) => {
+            const cor = key
+              .replace(/^image_/i, '')
+              .replace(/_/g, ' ')
+              .trim()
+              .toLowerCase();
+
+            if (item[key]) {
+              obj[cor] = item[key];
+            }
+
+            return obj;
+          }, {});
+
+        return {
+          id: Number(valorCampo(item, ['id', 'ID'], index + 1)),
+          name: valorCampo(item, ['name', 'Name', 'nome', 'Nome'], 'Produto sem nome'),
+          price: normalizarPreco(valorCampo(item, ['price', 'Price', 'preco', 'Preço', 'valor', 'Valor'], 0)),
+          image: valorCampo(item, ['image', 'Image', 'imagem', 'Imagem'], 'assets/logo-bg.png'),
+          category: valorCampo(item, ['category', 'Category', 'categoria', 'Categoria'], 'Produto'),
+          description: valorCampo(item, ['description', 'Description', 'descricao', 'Descrição'], ''),
+          sizes: normalizarLista(valorCampo(item, ['sizes', 'Sizes', 'tamanhos', 'Tamanhos'], 'Único')),
+          colors: normalizarLista(valorCampo(item, ['colors', 'Colors', 'cores', 'Cores'], 'Única')),
+          details: normalizarLista(valorCampo(item, ['details', 'Details', 'detalhes', 'Detalhes'], '')),
+          colorImages
+        };
+      })
       .filter(item => item.id && item.name && !Number.isNaN(item.price));
 
     renderProducts();
@@ -142,7 +155,7 @@ function openProductModal(id) {
   modalBody.innerHTML = `
     <div class="modal-grid">
       <div class="modal-img">
-        <img src="${p.image}" alt="${p.name}">
+        <img id="modalProductImage" src="${p.image}" alt="${p.name}">
       </div>
 
       <div class="modal-info">
@@ -166,7 +179,9 @@ function openProductModal(id) {
           <strong>Cor</strong>
           <div class="option-list" id="modalColors">
             ${p.colors.map((color, index) => `
-              <button class="option-btn ${index === 0 ? 'selected' : ''}" onclick="selectOption(this)">
+              <button
+                class="option-btn ${index === 0 ? 'selected' : ''}"
+                onclick="selectColor(this, '${color}', ${p.id})">
                 ${color}
               </button>
             `).join('')}
@@ -209,6 +224,25 @@ function selectOption(button) {
   const parent = button.parentElement;
   parent.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
   button.classList.add('selected');
+}
+
+function selectColor(button, color, productId) {
+  selectOption(button);
+
+  const produto = products.find(p => p.id === productId);
+  if (!produto) return;
+
+  const corNormalizada = color
+    .replace(/_/g, ' ')
+    .trim()
+    .toLowerCase();
+
+  const imagem = produto.colorImages?.[corNormalizada];
+  const img = document.getElementById('modalProductImage');
+
+  if (imagem && img) {
+    img.src = imagem;
+  }
 }
 
 function getModalSelection() {
