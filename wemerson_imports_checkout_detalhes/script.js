@@ -237,10 +237,14 @@ function selectColor(button, color, productId) {
     .trim()
     .toLowerCase();
 
-  const imagem = produto.colorImages?.[corNormalizada];
+  const imagem =
+    produto.colorImages?.[corNormalizada] ||
+    produto.colorImages?.[corNormalizada.replace(/\s+/g, ' ')] ||
+    produto.image;
+
   const img = document.getElementById('modalProductImage');
 
-  if (imagem && img) {
+  if (img) {
     img.src = imagem;
   }
 }
