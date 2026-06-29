@@ -149,6 +149,12 @@ function openProductModal(id) {
   const p = products.find(product => product.id === id);
   if (!p) return;
 
+  gtag('event', 'view_item', {
+  item_name: p.name,
+  value: p.price,
+  currency: 'BRL'
+});
+
   const modal = document.getElementById('productModal');
   const modalBody = document.getElementById('modalBody');
 
@@ -275,6 +281,16 @@ function addToCart(id, size = '', color = '') {
   const product = products.find(p => p.id === id);
   if (!product) return;
 
+  gtag('event', 'add_to_cart', {
+  currency: 'BRL',
+  value: product.price,
+  items: [{
+    item_name: product.name,
+    price: product.price,
+    quantity: 1
+  }]
+});
+
   const chosenSize = size || product.sizes[0] || 'Único';
   const chosenColor = color || product.colors[0] || 'Única';
 
@@ -349,6 +365,7 @@ function renderCart() {
 }
 
 function abrirCheckout() {
+
   const pagamentoCarrinho = document.getElementById('paymentMethod')?.value;
   const pagamentoCheckout = document.getElementById('pagamentoCliente');
 
@@ -360,6 +377,11 @@ function abrirCheckout() {
     alert("Adicione produtos ao carrinho.");
     return;
   }
+
+  gtag('event', 'begin_checkout', {
+    currency: 'BRL',
+    value: cart.reduce((a, i) => a + (i.price * i.qty), 0)
+  });
 
   document.getElementById("checkoutModal")?.classList.add("active");
 }
@@ -516,6 +538,11 @@ function checkoutWhatsApp() {
 
   const text = `Olá, quero finalizar meu pedido na W.G Wear:%0A%0A${lines}%0A%0AForma de pagamento: ${payment}%0ATotal: ${total}%0A%0APode confirmar disponibilidade, frete e prazo?`;
 
+  gtag('event', 'whatsapp_click', {
+  currency: 'BRL',
+  value: cart.reduce((a, i) => a + (i.price * i.qty), 0)
+});
+
   window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
 }
 
@@ -529,6 +556,27 @@ function enviarPedidoWhatsapp() {
 
   const cliente = obterDadosCliente();
 
+  const valorTotalNumerico = cart.reduce((a, i) => a + (i.price * i.qty), 0);
+
+  gtag('event', 'whatsapp_click', {
+    currency: 'BRL',
+    value: valorTotalNumerico,
+    payment_method: cliente.pagamento
+  });
+
+  gtag('event', 'purchase', {
+    transaction_id: Date.now().toString(),
+    currency: 'BRL',
+    value: valorTotalNumerico,
+    payment_method: cliente.pagamento,
+    items: cart.map(item => ({
+      item_name: item.name,
+      item_category: item.category,
+      price: item.price,
+      quantity: item.qty
+    }))
+  });
+
   const itens = cart.map(i =>
     `• ${i.qty}x ${i.name}
   Cor: ${i.color}
@@ -536,7 +584,7 @@ function enviarPedidoWhatsapp() {
   Valor: ${money(i.price)}`
   ).join("\n\n");
 
-  const total = money(cart.reduce((a, i) => a + (i.price * i.qty), 0));
+  const total = money(valorTotalNumerico);
 
   const mensagem =
 `🔥 NOVO PEDIDO - W.G WEAR
